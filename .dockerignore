@@ -1,0 +1,6 @@
+config
+node_modules
+public
+scripts
+package-lock.json
+package.json
