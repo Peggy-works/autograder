@@ -10,7 +10,7 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true })); 
 app.use(bodyParser.json())
-app.use(express.static('public')); 
+app.use(express.static(path.join(__dirname ,'public'))); 
 
 //Setting storage settings
 const storage = multer.diskStorage({
@@ -34,19 +34,26 @@ app.post("/api/upload", upload.single('file'), (req, res) => {
     const scriptPath = path.join(__dirname, "../scripts/fileExists.sh");
     const filePath = path.join(__dirname, "../uploads/" + req.file.originalname) 
 
-    if(req.file){
-        exec(`bash ${scriptPath} "${filePath}"`, (error, stdout, stderr) => {
-            if(error){
-                console.log("couldnt run")
-            } else {
-                console.log("ran successfully")
-                console.log(`Output: ${stdout}`)
-            }
-        }) 
-    } 
-    res.json({ message: "File was uploaded" })
+    try {
+        if(req.file){
+            exec(`bash ${scriptPath} "${filePath}"`, (error, stdout, stderr) => {
+                if(error){
+                    console.log("couldnt run")
+                } else {
+                    console.log("ran successfully")
+                    console.log(`Output: ${stdout}`)
+                }
+            }) 
+        } 
+        res.json({ message: "File was uploaded" })
+    } catch(e) {
+        console.log(e.message)
+        res.status(501)
+    }
+    
 })
 
+const ip = '0.0.0.0'
 const port = process.env.PORT || 8080;
 
 app.listen(port, () => {
